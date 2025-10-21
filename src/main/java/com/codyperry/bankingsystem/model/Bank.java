@@ -1,13 +1,12 @@
 package com.codyperry.bankingsystem.model;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class Bank {
     // Account ID mapped to the current balance
-    private Map<String, Integer> accounts;
+    private Map<String, Account> accounts;
     private Map<String, Integer> transactions;
 
     public Bank() {
@@ -21,7 +20,9 @@ public class Bank {
             return false;
         }
 
-        this.accounts.put(accountId, 0);
+        Account newAccount = new Account(accountId, timestamp);
+
+        this.accounts.put(accountId, newAccount);
         this.transactions.put(accountId, 0);
 
         return true;
@@ -32,10 +33,11 @@ public class Bank {
             return Optional.empty();
         }
 
-        this.accounts.compute(accountId, (k, v) -> v + amount);
+        Integer balance = this.accounts.get(accountId).updateBalance(amount);
+
         this.transactions.compute(accountId, (k, v) -> v + amount);
 
-        return Optional.of(this.accounts.get(accountId));
+        return Optional.of(balance);
     }
 
     public Optional<Integer> pay(int timestamp, String accountId, int amount) {
@@ -43,10 +45,11 @@ public class Bank {
             return Optional.empty();
         }
 
-        this.accounts.compute(accountId, (k, v) -> v - amount);
+        Integer balance = this.accounts.get(accountId).updateBalance(-amount);
+
         this.transactions.compute(accountId, (k, v) -> v + amount);
 
-        return Optional.of(this.accounts.get(accountId));
+        return Optional.of(balance);
     }
 
     public Optional<Integer> getBalance(int timestamp, String accountId) {
@@ -54,10 +57,10 @@ public class Bank {
             return Optional.empty();
         }
 
-        return Optional.of(this.accounts.get(accountId));
+        return Optional.of(this.accounts.get(accountId).getCurrentBalance());
     }
 
-    public Map<String, Integer> getAccounts() {
+    public Map<String, Account> getAccounts() {
         return this.accounts;
     }
 
