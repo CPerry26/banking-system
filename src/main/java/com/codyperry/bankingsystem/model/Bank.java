@@ -52,6 +52,18 @@ public class Bank {
         return Optional.of(balance);
     }
 
+    public Optional<Integer> closeAccount(int timestamp, String accountId) {
+        if (!this.accounts.containsKey(accountId)) {
+            return Optional.empty();
+        }
+
+        // Get the account but don't remove from transactions so we have history.
+        Account account = this.accounts.get(accountId);
+        this.accounts.remove(accountId);
+
+        return Optional.of(account.getCurrentBalance());
+    }
+
     public Optional<Integer> getBalance(int timestamp, String accountId) {
         if (!this.accounts.containsKey(accountId)) {
             return Optional.empty();

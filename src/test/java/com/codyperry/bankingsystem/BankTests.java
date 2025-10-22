@@ -110,4 +110,30 @@ public class BankTests {
         assertEquals(paid.isPresent(), false);
         assertEquals(paid.isEmpty(), true);
     }
+
+    @Test
+    @Order(9)
+    void testCloseHappyPath() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.deposit(0, "account1", 40);
+
+        Optional<Integer> remainingBalance = bank.closeAccount(0, "account1");
+
+        assertEquals(remainingBalance.isPresent(), true);
+        assertEquals(remainingBalance.get(), 40);
+    }
+
+    @Test
+    @Order(10)
+    void testCloseNonExistentAcct() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.deposit(0, "account1", 40);
+
+        Optional<Integer> remainingBalance = bank.closeAccount(0, "account2");
+
+        assertEquals(remainingBalance.isPresent(), false);
+        assertEquals(remainingBalance.isEmpty(), true);
+    }
 }
