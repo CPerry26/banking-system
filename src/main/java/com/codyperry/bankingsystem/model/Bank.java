@@ -33,7 +33,7 @@ public class Bank {
             return Optional.empty();
         }
 
-        Integer balance = this.accounts.get(accountId).updateBalance(amount);
+        Integer balance = this.accounts.get(accountId).deposit(amount);
 
         this.transactions.compute(accountId, (k, v) -> v + amount);
 
@@ -45,7 +45,7 @@ public class Bank {
             return Optional.empty();
         }
 
-        Integer balance = this.accounts.get(accountId).updateBalance(-amount);
+        Integer balance = this.accounts.get(accountId).withdraw(amount);
 
         this.transactions.compute(accountId, (k, v) -> v + amount);
 

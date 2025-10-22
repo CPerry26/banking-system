@@ -1,5 +1,8 @@
 package com.codyperry.bankingsystem.model;
 
+/**
+ * A representation of an account which tracks it's creation, ID, and current balance.
+ */
 public class Account {
     private String accountId;
     private Integer balance;
@@ -15,8 +18,13 @@ public class Account {
         return this.accountId;
     }
 
-    public Integer updateBalance(Integer amount) {
+    public Integer deposit(Integer amount) {
         this.balance = this.balance + amount;
+        return this.balance;
+    }
+
+    public Integer withdraw(Integer amount) {
+        this.balance = this.balance - amount;
         return this.balance;
     }
 
