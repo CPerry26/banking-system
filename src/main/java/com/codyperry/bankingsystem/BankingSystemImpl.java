@@ -21,6 +21,11 @@ public class BankingSystemImpl implements BankingSystem {
     }
 
     @Override
+    public Optional<Integer> closeAccount(int timestamp, String accountId) {
+        return this.bank.closeAccount(timestamp, accountId);
+    }
+
+    @Override
     public Optional<Integer> deposit(int timestamp, String accountId, int amount) {
         return this.bank.deposit(timestamp, accountId, amount);
     }

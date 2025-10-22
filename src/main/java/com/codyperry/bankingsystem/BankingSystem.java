@@ -18,6 +18,16 @@ public interface BankingSystem {
     boolean createAccount(int timestamp, String accountId);
 
     /**
+     * Close the specified account if it exists.
+     *
+     * @param timestamp
+     * @param accountId
+     *
+     * @return The remaining balance on the account.
+     */
+    Optional<Integer> closeAccount(int timestamp, String accountId);
+
+    /**
      * Deposit the amount into the specified account ID. Returns an empty optional if the account does not exist.
      *
      * @param timestamp
