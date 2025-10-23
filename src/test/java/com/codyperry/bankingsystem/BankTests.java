@@ -136,4 +136,106 @@ public class BankTests {
         assertEquals(remainingBalance.isPresent(), false);
         assertEquals(remainingBalance.isEmpty(), true);
     }
+
+    @Test
+    @Order(11)
+    void testTransferHappyPath() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.createAccount(0, "account2");
+        bank.deposit(0, "account1", 40);
+
+        Optional<String> transferId = bank.initiateTransfer(0, "account1", "account2", 20);
+
+        assertEquals(transferId.isPresent(), true);
+
+        boolean acceptedTransfer = bank.acceptTransfer(1, "account2", transferId.get());
+        assertEquals(acceptedTransfer, true);
+
+        Optional<Integer> account1Balance = bank.getBalance(2, "account1");
+        Optional<Integer> account2Balance = bank.getBalance(2, "account2");
+
+        assertEquals(account1Balance.isPresent(), true);
+        assertEquals(account1Balance.get(), 20);
+        assertEquals(account2Balance.isPresent(), true);
+        assertEquals(account1Balance.get(), 20);
+    }
+
+    @Test
+    @Order(12)
+    void testTransferMissingAcct() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.deposit(0, "account1", 40);
+
+        Optional<String> transferId = bank.initiateTransfer(0, "account1", "account2", 20);
+
+        assertEquals(transferId.isPresent(), false);
+        assertEquals(transferId.isEmpty(), true);
+    }
+
+    @Test
+    @Order(13)
+    void testTransferInsufficientFunds() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.createAccount(0, "account2");
+        bank.deposit(0, "account1", 15);
+
+        Optional<String> transferId = bank.initiateTransfer(0, "account1", "account2", 20);
+
+        assertEquals(transferId.isPresent(), false);
+        assertEquals(transferId.isEmpty(), true);
+    }
+
+    @Test
+    @Order(14)
+    void testTransferAcceptedAlready() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.createAccount(0, "account2");
+        bank.deposit(0, "account1", 40);
+
+        Optional<String> transferId = bank.initiateTransfer(0, "account1", "account2", 20);
+
+        assertEquals(transferId.isPresent(), true);
+
+        boolean acceptedTransfer = bank.acceptTransfer(1, "account2", transferId.get());
+        assertEquals(acceptedTransfer, true);
+
+        boolean acceptAgain = bank.acceptTransfer(1, "account2", transferId.get());
+        assertEquals(acceptAgain, false);
+    }
+
+    @Test
+    @Order(15)
+    void testTransferNoMatchingId() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.createAccount(0, "account2");
+        bank.deposit(0, "account1", 40);
+
+        Optional<String> transferId = bank.initiateTransfer(0, "account1", "account2", 20);
+
+        assertEquals(transferId.isPresent(), true);
+
+        boolean acceptedTransfer = bank.acceptTransfer(1, "account2", transferId.get() + "1");
+        assertEquals(acceptedTransfer, false);
+    }
+
+    @Test
+    @Order(16)
+    void testTransferExpired() {
+        final Bank bank = new Bank();
+        bank.createAccount(0, "account1");
+        bank.createAccount(0, "account2");
+        bank.deposit(0, "account1", 40);
+
+        Optional<String> transferId = bank.initiateTransfer(0, "account1", "account2", 20);
+
+        assertEquals(transferId.isPresent(), true);
+
+        boolean acceptedTransfer = bank.acceptTransfer(172800001, "account2", transferId.get());
+        assertEquals(acceptedTransfer, false);
+    }
 }
