@@ -1,9 +1,11 @@
 package com.codyperry.bankingsystem;
 
 import com.codyperry.bankingsystem.model.Bank;
+import com.codyperry.bankingsystem.model.Transaction;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,7 +39,18 @@ public class BankingSystemImpl implements BankingSystem {
 
     @Override
     public List<String> topActivity(int timestamp, int n) {
-        List<Map.Entry<String, Integer>> sortedActivity = new ArrayList<>(this.bank.getTransactions().entrySet());
+        Map<String, Integer> totalTransactionValue = new HashMap<>();
+
+        // Use streams to build the transaction total for each account.
+        for (Map.Entry<String, List<Transaction>> transactions : this.bank.getTransactions().entrySet()) {
+            Integer acctTotal = transactions.getValue().stream().reduce(
+                    0, (acctSubtotal, transaction) -> acctSubtotal + transaction.getAmount(), Integer::sum
+            );
+
+            totalTransactionValue.put(transactions.getKey(), acctTotal);
+        }
+
+        List<Map.Entry<String, Integer>> sortedActivity = new ArrayList<>(totalTransactionValue.entrySet());
         Collections.sort(sortedActivity, new TransactionComparator());
 
         List<String> resultList = new ArrayList<>();
