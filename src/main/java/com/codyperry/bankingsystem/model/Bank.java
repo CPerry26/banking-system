@@ -1,6 +1,8 @@
 package com.codyperry.bankingsystem.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -8,8 +10,8 @@ public class Bank {
     // Account ID mapped to the current balance
     private Map<String, Account> accounts;
 
-    // Account ID mapped to the transaction value (note: always positive).
-    private Map<String, Integer> transactions;
+    // Account ID mapped to a list of transactions made on the account.
+    private Map<String, List<Transaction>> transactions;
 
     // Transfer ID mapped to the pending transfer.
     private Map<String, Transfer> transfers;
@@ -31,7 +33,7 @@ public class Bank {
         Account newAccount = new Account(accountId, timestamp);
 
         this.accounts.put(accountId, newAccount);
-        this.transactions.put(accountId, 0);
+        this.transactions.put(accountId, new ArrayList<>());
 
         return true;
     }
@@ -43,7 +45,12 @@ public class Bank {
 
         Integer balance = this.accounts.get(accountId).deposit(amount);
 
-        this.transactions.compute(accountId, (k, v) -> v + amount);
+        Transaction transaction = new Transaction(timestamp, accountId, amount);
+
+        List<Transaction> acctTransactions = this.transactions.get(accountId);
+        acctTransactions.add(transaction);
+
+        this.transactions.put(accountId, acctTransactions);
 
         return Optional.of(balance);
     }
@@ -55,7 +62,12 @@ public class Bank {
 
         Integer balance = this.accounts.get(accountId).withdraw(amount);
 
-        this.transactions.compute(accountId, (k, v) -> v + amount);
+        Transaction transaction = new Transaction(timestamp, accountId, amount);
+
+        List<Transaction> acctTransactions = this.transactions.get(accountId);
+        acctTransactions.add(transaction);
+
+        this.transactions.put(accountId, acctTransactions);
 
         return Optional.of(balance);
     }
@@ -84,7 +96,7 @@ public class Bank {
         return this.accounts;
     }
 
-    public Map<String, Integer> getTransactions() {
+    public Map<String, List<Transaction>> getTransactions() {
         return this.transactions;
     }
 

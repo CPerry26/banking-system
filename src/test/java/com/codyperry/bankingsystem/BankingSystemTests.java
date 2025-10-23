@@ -54,4 +54,22 @@ public class BankingSystemTests {
         assertEquals(topActivity.get(0), "account1(100)");
         assertEquals(topActivity.get(1), "account2(100)");
     }
+
+    @Test
+    @Order(4)
+    void testTopActivityMultipleTransactions() {
+        final BankingSystemImpl bankingSystem = new BankingSystemImpl();
+        bankingSystem.createAccount(0, "account1");
+        bankingSystem.deposit(0, "account1", 100);
+        bankingSystem.deposit(0, "account1", 100);
+        bankingSystem.createAccount(0, "account2");
+        bankingSystem.deposit(0, "account2", 100);
+        bankingSystem.deposit(0, "account2", 1000);
+
+        List<String> topActivity = bankingSystem.topActivity(0, 5);
+
+        assertEquals(topActivity.size(), 2);
+        assertEquals(topActivity.get(0), "account2(1100)");
+        assertEquals(topActivity.get(1), "account1(200)");
+    }
 }
