@@ -7,12 +7,20 @@ import java.util.Optional;
 public class Bank {
     // Account ID mapped to the current balance
     private Map<String, Account> accounts;
+
+    // Account ID mapped to the transaction value (note: always positive).
     private Map<String, Integer> transactions;
+
+    // Transfer ID mapped to the pending transfer.
+    private Map<String, Transfer> transfers;
+
+    private final int MAX_TRANSFER_LIFETIME = 172800000;
 
     public Bank() {
         // This is not thread safe.
         this.accounts = new HashMap<>();
         this.transactions = new HashMap<>();
+        this.transfers = new HashMap<>();
     }
 
     public boolean createAccount(int timestamp, String accountId) {
@@ -78,5 +86,57 @@ public class Bank {
 
     public Map<String, Integer> getTransactions() {
         return this.transactions;
+    }
+
+    public Optional<String> initiateTransfer(int timestamp, String sourceAccountId, String targetAccountId, int amount) {
+        if (!this.accounts.containsKey(sourceAccountId) || !this.accounts.containsKey(targetAccountId)) {
+            return Optional.empty();
+        }
+
+        // If the source account has insufficient funds, reject.
+        if (this.getBalance(timestamp, sourceAccountId).get() < amount) {
+            return Optional.empty();
+        }
+
+        Transfer transfer = new Transfer(timestamp, sourceAccountId, targetAccountId, amount);
+        String transferId = "transfer" + this.transfers.size() + 1 + "";
+
+        this.transfers.put(transferId, transfer);
+
+        return Optional.of(transferId);
+    }
+
+    public boolean acceptTransfer(int timestamp, String accountId, String transferId) {
+        if (!this.accounts.containsKey(accountId) || !this.transfers.containsKey(transferId)) {
+            return false;
+        }
+
+        Transfer transfer = this.transfers.get(transferId);
+
+        // Make sure the transfer hasn't already been accepted or expired.
+        if (transfer.getStatus() == TransferStatus.ACCEPTED || transfer.getStatus() == TransferStatus.EXPIRED) {
+            return false;
+        }
+
+        // Make sure it hasn't expired.
+        if (timestamp > (transfer.getTimestamp() + MAX_TRANSFER_LIFETIME)) {
+            transfer.setStatus(TransferStatus.EXPIRED);
+
+            this.transfers.put(transferId, transfer);
+
+            return false;
+        }
+
+        // Not expired, set the status to accepted.
+        transfer.setStatus(TransferStatus.ACCEPTED);
+
+        // Update the source and target account balances.
+        this.pay(timestamp, transfer.getSourceAccountId(), transfer.getAmount());
+        this.deposit(timestamp, transfer.getTargetAccountId(), transfer.getAmount());
+
+        // Put the transfer back.
+        this.transfers.put(transferId, transfer);
+
+        return true;
     }
 }

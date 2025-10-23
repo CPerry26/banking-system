@@ -60,4 +60,28 @@ public interface BankingSystem {
      * @return A list of N top transaction accounts
      */
     List<String> topActivity(int timestamp, int n);
+
+    /**
+     * Initiate a transfer between the source and target accounts. This transfer is only valid for 48 hours, and only
+     * completes when the target account accepts the transfer using `acceptTransfer`.
+     *
+     * @param timestamp
+     * @param sourceAccountId
+     * @param targetAccountId
+     * @param amount
+     *
+     * @return The transfer ID if created.
+     */
+    Optional<String> transfer(int timestamp, String sourceAccountId, String targetAccountId, int amount);
+
+    /**
+     * Initiate the acceptance of the transfer, and handle any associated account updates.
+     *
+     * @param timestamp
+     * @param accountId
+     * @param transferId
+     *
+     * @return True if accepted, false otherwise
+     */
+    boolean acceptTransfer(int timestamp, String accountId, String transferId);
 }

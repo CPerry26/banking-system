@@ -49,4 +49,14 @@ public class BankingSystemImpl implements BankingSystem {
 
         return resultList;
     }
+
+    @Override
+    public Optional<String> transfer(int timestamp, String sourceAccountId, String targetAccountId, int amount) {
+        return this.bank.initiateTransfer(timestamp, sourceAccountId, targetAccountId, amount);
+    }
+
+    @Override
+    public boolean acceptTransfer(int timestamp, String accountId, String transferId) {
+        return this.bank.acceptTransfer(timestamp, accountId, transferId);
+    }
 }
