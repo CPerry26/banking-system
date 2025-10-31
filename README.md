@@ -8,3 +8,5 @@ A simple LLD style implementation of a banking system. One of the goals was to e
 * Get the top total transaction accounts (including deposits + payments)
 * Transfers
 * Closing an account
+
+It is written with Java 17 and uses Maven. All of the tests are passing and runnable using JUnit.
